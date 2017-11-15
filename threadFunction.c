@@ -8,7 +8,9 @@ passed as its parameter.
 #include <semaphore.h>
 #include <stdio.h>
 #include <unistd.h>
-
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #define TEN_MILLION 10000000L
 #define BUFFER_SIZE 1024
 
