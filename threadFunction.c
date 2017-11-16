@@ -8,12 +8,19 @@ passed as its parameter.
 #include <semaphore.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 #define TEN_MILLION 10000000L
 #define BUFFER_SIZE 1024
 
 extern pthread_t *tids;
 extern int n;
+
+//ADDED REFERENCE TO GLOBALS IN MAIN
+extern char book [BUFFER_SIZE];
+extern char chapter [BUFFER_SIZE];
 
 void *threadout (void *args)
 {
@@ -28,19 +35,7 @@ void *threadout (void *args)
     sleeptime.tv_sec = 0;
     sleeptime.tv_nsec = TEN_MILLION;
 
-//ADDED
-//Create the title of the chapter ex. mychapter2
-    strcpy(chap, chapter);
-    sprintf(istring, "%d", tid);
-    strcat(chap,istring);
 
-//OPEN FILE
-    inFile = open(chap, O_RDONLY); //open the file to send to server
-    if (inFile == -1) {
-        printf("Error: Could Not Open File %s /n",chap);
-        return NULL;
-    }
-//END
 
 /*
 This for loop converts a thread id into an integer. It works
@@ -60,6 +55,33 @@ different POSIX implementations.
     snprintf (buffer, BUFFER_SIZE, "This is tid %d from pid %ld\n",
               (int) i + 2, (long) getpid ());
     c = buffer;
+
+
+
+
+//ADDED
+//Create the title of the chapter ex. mychapter2
+    char chap[BUFFER_SIZE];
+    char istring[32];
+    strcpy(chap, chapter);
+//Converts the tid interger found above to string to append to filename
+    sprintf(istring, "%d", i+1);
+    strcat(chap,istring);
+
+    printf("TEST:: chapter %s \n",chap);
+//OPEN FILE
+   /* inFile = open(chap, O_RDONLY); //open the file to send to server
+    if (inFile == -1) {
+        printf("Error: Could Not Open File %s /n",chap);
+        return NULL;
+    }*/
+//END
+
+
+
+
+
+
 
 /*
 ****************** Lock ****************************************
@@ -102,7 +124,7 @@ different POSIX implementations.
     */
     //END OF ADDED
     
-    
+    //printf("book: %s",book);
     
     
     while (*c != '\0')
