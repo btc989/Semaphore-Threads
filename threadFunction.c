@@ -37,9 +37,9 @@ void *threadout (void *args, void *chapter, void * bookTitle, void * num)
     sleeptime.tv_nsec = TEN_MILLION;
 
 //ADDED
-    strcpy(chap,*chapter);
-    strcpy(book,*bookTitle);
-    cnum = *num;
+    strcpy(chap,*(char *)chapter);
+    strcpy(book,*(char *)bookTitle);
+    cnum = *(int *)num;
 //OPEN FILE
     inFile = open(chap, O_RDONLY); //open the file to send to server
     if (inFile == -1) {
