@@ -8,28 +8,18 @@ passed as its parameter.
 #include <semaphore.h>
 #include <stdio.h>
 #include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
+
 #define TEN_MILLION 10000000L
 #define BUFFER_SIZE 1024
 
 extern pthread_t *tids;
-char book [BUFFER_SIZE];
-char chapter [BUFFER_SIZE];
 extern int n;
 
 void *threadout (void *args)
 {
     char buffer [BUFFER_SIZE];
-    char chap [BUFFER_SIZE];
-    char book [BUFFER_SIZE];
     char *c;
     int i;
-    int cnum;
-    int inFile = 0;
-    int outFile = 0;
-    int n_char = 0;
     sem_t *semp;
     pthread_t tid = pthread_self ();
     struct timespec sleeptime;
@@ -37,12 +27,8 @@ void *threadout (void *args)
     semp = (sem_t *) args;
     sleeptime.tv_sec = 0;
     sleeptime.tv_nsec = TEN_MILLION;
-    char istring[32];
-//ADDED
-    //strcpy(chap,*(char *)chapter);
-    //strcpy(book,*(char *)bookTitle);
-    //cnum = *(int *)num;
 
+//ADDED
 //Create the title of the chapter ex. mychapter2
     strcpy(chap, chapter);
     sprintf(istring, "%d", tid);
@@ -54,12 +40,7 @@ void *threadout (void *args)
         printf("Error: Could Not Open File %s /n",chap);
         return NULL;
     }
-
-
-
 //END
-
-
 
 /*
 This for loop converts a thread id into an integer. It works
@@ -83,6 +64,8 @@ different POSIX implementations.
 /*
 ****************** Lock ****************************************
 */
+
+//SHOULD THIS BE A CHECK IF CHAPTER ID == SHARED VARIABLE?????
     while (sem_wait (semp) == -1)
     {
         if(errno != EINTR)
@@ -95,8 +78,10 @@ different POSIX implementations.
 /*
 ****************** Critical Section ****************************
 */
+    //ADDED
+    /*
 
-    //Check shared counter is value equals same as chapter number
+        //Check shared counter is value equals same as chapter number
     int x = getShared(semp);
     if(x== cnum){
         //IF TRUE THEN OPEN BOOK
@@ -114,14 +99,18 @@ different POSIX implementations.
         //INCREMENT SHARED COUNTER
         x= incrementShared();
     }
+    */
+    //END OF ADDED
     
-
-   /* while (*c != '\0')
+    
+    
+    
+    while (*c != '\0')
     {
         fputc (*c, stderr);
         c++;
         nanosleep (&sleeptime, NULL);
-    }*/
+    }
 
 /*
 ****************** Unlock **************************************

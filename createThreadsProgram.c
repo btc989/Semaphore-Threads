@@ -7,43 +7,40 @@ This program creates a semaphore and passes it to a number of threads.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define BUFFER_SIZE 1024
+
 pthread_t *tids;
 int n;
+void *threadout (void *args);
+
+//TO START DECLARE GLOBALS OF
+//BOOK TITLE
+//CHAPTER TITLE
+//SO THREADOUT CAN GRAB THEM AND OPEN THE FILES
+#define BUFFER_SIZE 1024
 char book [BUFFER_SIZE];
 char chapter [BUFFER_SIZE];
 
-void *threadout (void *args);
-
 int main (int argc, char *argv [])
 {
-    char buffer [BUFFER_SIZE];
-    char *c;
-    char *d;
-    char *e;
     int error;
     int i;
     sem_t sem;
-    
 
-
-
-
-
-
+    //NEXT CHECK THAT 4 PARAMETERS WERE GIVEN
     if (argc != 4)
     {
         fprintf (stderr, "Usage: %s number_of_threads\n", argv [0]);
         return 1;
     }
 
+    //ASSIGN CHAPTER TITLE, AND BOOK TITLE TO GLOBAL VARIABLES
+    strcpy(chapter , argv [1]);
+    strcpy(book, argv [3]);
 /*
 ****************** Allocate space for thread ids ******************
 */
+    //GRAB NUMBER OF THREADS TO CREATE FROM PASSED IN PARAMETERS
     n = atoi (argv [2]);
-    strcpy(chapter , argv [1]);
-    strcpy(book, argv [3]);
-    
     tids = (pthread_t *) calloc (n, sizeof (pthread_t));
     if (tids == NULL)
     {
@@ -59,9 +56,8 @@ int main (int argc, char *argv [])
 /*
 ****************** Create threads *********************************
 */
-    for (i = 1; i <= n; i++)
+    for (i = 0; i < n; i++)
     {
-        
         if (error = pthread_create (tids + i, NULL, threadout, &sem))
         {
             fprintf (stderr, "Failed to create thread:%s\n", strerror (error));
