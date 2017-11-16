@@ -21,6 +21,8 @@ extern int n;
 //ADDED REFERENCE TO GLOBALS IN MAIN
 extern char book [BUFFER_SIZE];
 extern char chapter [BUFFER_SIZE];
+//MAYBE USE THIS FOR COUNTER
+extern int counter;
 
 void *threadout (void *args)
 {
@@ -35,8 +37,10 @@ void *threadout (void *args)
     sleeptime.tv_sec = 0;
     sleeptime.tv_nsec = TEN_MILLION;
 
-
-
+    //ADDED VARIABLES
+    int inFile=0;
+    int outFile=0;
+    int n_char=0;
 /*
 This for loop converts a thread id into an integer. It works
 on both Hercules and the Linux machines in CL115. It solves
@@ -56,9 +60,6 @@ different POSIX implementations.
               (int) i + 2, (long) getpid ());
     c = buffer;
 
-
-
-
 //ADDED
 //Create the title of the chapter ex. mychapter2
     char chap[BUFFER_SIZE];
@@ -69,26 +70,22 @@ different POSIX implementations.
     strcat(chap,istring);
 
     printf("TEST:: chapter %s \n",chap);
+    
 //OPEN FILE
-   /* inFile = open(chap, O_RDONLY); //open the file to send to server
+    inFile = open(chap, O_RDONLY); //open the file to send to server
     if (inFile == -1) {
         printf("Error: Could Not Open File %s /n",chap);
         return NULL;
-    }*/
+    }
 //END
-
-
-
-
-
-
 
 /*
 ****************** Lock ****************************************
 */
-
+//PROBLEM SPOT
 //SHOULD THIS BE A CHECK IF CHAPTER ID == SHARED VARIABLE?????
-    while (sem_wait (semp) == -1)
+//Check shared counter is value equals same as chapter number
+    while ((sem_wait (semp) == -1) && (i+1!= counter))
     {
         if(errno != EINTR)
         {
@@ -101,13 +98,12 @@ different POSIX implementations.
 ****************** Critical Section ****************************
 */
     //ADDED
-    /*
+    
 
         //Check shared counter is value equals same as chapter number
-    int x = getShared(semp);
-    if(x== cnum){
+    
         //IF TRUE THEN OPEN BOOK
-        outFile=open(book,O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR);
+        outFile=open(book,O_WRONLY | O_APPEND | O_CREAT, S_IRUSR | S_IWUSR);
         if(outFile == -1){
             printf("Error could not open book \n");
             return NULL;
@@ -119,20 +115,23 @@ different POSIX implementations.
                 n_char=write(outFile,buffer,n_char);
         }
         //INCREMENT SHARED COUNTER
-        x= incrementShared();
-    }
-    */
+        printf("TEST:: made it in if statement:counter %d %d \n",counter, i+1);
+        counter++;
+   
+    
     //END OF ADDED
     
-    //printf("book: %s",book);
     
-    
+    //OLD Original STUFF
+     /*
     while (*c != '\0')
     {
         fputc (*c, stderr);
         c++;
         nanosleep (&sleeptime, NULL);
-    }
+    }*/
+    close(inFile);
+    close(outFile);
 
 /*
 ****************** Unlock **************************************

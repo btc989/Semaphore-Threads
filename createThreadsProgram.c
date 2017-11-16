@@ -19,6 +19,7 @@ void *threadout (void *args);
 #define BUFFER_SIZE 1024
 char book [BUFFER_SIZE];
 char chapter [BUFFER_SIZE];
+int counter;
 
 int main (int argc, char *argv [])
 {
@@ -32,7 +33,8 @@ int main (int argc, char *argv [])
         fprintf (stderr, "Usage: %s number_of_threads\n", argv [0]);
         return 1;
     }
-
+    //Initalize Counter to 1
+    counter =1;
     //ASSIGN CHAPTER TITLE, AND BOOK TITLE TO GLOBAL VARIABLES
     strcpy(chapter , argv [1]);
     strcpy(book, argv [3]);
