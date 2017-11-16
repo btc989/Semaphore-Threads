@@ -10,6 +10,9 @@ This program creates a semaphore and passes it to a number of threads.
 #define BUFFER_SIZE 1024
 pthread_t *tids;
 int n;
+char book [BUFFER_SIZE];
+char chapter [BUFFER_SIZE];
+
 void *threadout (void *args);
 
 int main (int argc, char *argv [])
@@ -21,7 +24,7 @@ int main (int argc, char *argv [])
     int error;
     int i;
     sem_t sem;
-    char istring[32];
+    
 
 
 
@@ -38,7 +41,8 @@ int main (int argc, char *argv [])
 ****************** Allocate space for thread ids ******************
 */
     n = atoi (argv [2]);
-    d = argv [3];
+    strcpy(chapter , argv [1]);
+    strcpy(book, argv [3]);
     
     tids = (pthread_t *) calloc (n, sizeof (pthread_t));
     if (tids == NULL)
@@ -57,12 +61,8 @@ int main (int argc, char *argv [])
 */
     for (i = 1; i <= n; i++)
     {
-        strcpy(buffer, argv[1]);
-        sprintf(istring, "%d", i);
-        strcat(buffer,istring);
-        c= buffer;
-        e=i;
-        if (error = pthread_create (tids + i, NULL, threadout, &sem, c,d,e ))
+        
+        if (error = pthread_create (tids + i, NULL, threadout, &sem))
         {
             fprintf (stderr, "Failed to create thread:%s\n", strerror (error));
             return 1;

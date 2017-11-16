@@ -15,9 +15,11 @@ passed as its parameter.
 #define BUFFER_SIZE 1024
 
 extern pthread_t *tids;
+char book [BUFFER_SIZE];
+char chapter [BUFFER_SIZE];
 extern int n;
 
-void *threadout (void *args, void *chapter, void * bookTitle, void * num)
+void *threadout (void *args)
 {
     char buffer [BUFFER_SIZE];
     char chap [BUFFER_SIZE];
@@ -35,16 +37,22 @@ void *threadout (void *args, void *chapter, void * bookTitle, void * num)
     semp = (sem_t *) args;
     sleeptime.tv_sec = 0;
     sleeptime.tv_nsec = TEN_MILLION;
-
+    char istring[32];
 //ADDED
-    strcpy(chap,*(char *)chapter);
-    strcpy(book,*(char *)bookTitle);
-    cnum = *(int *)num;
+    //strcpy(chap,*(char *)chapter);
+    //strcpy(book,*(char *)bookTitle);
+    //cnum = *(int *)num;
+
+//Create the title of the chapter ex. mychapter2
+    strcpy(chap, chapter);
+    sprintf(istring, "%d", tid);
+    strcat(chap,istring);
+
 //OPEN FILE
     inFile = open(chap, O_RDONLY); //open the file to send to server
     if (inFile == -1) {
         printf("Error: Could Not Open File %s /n",chap);
-        exit(1);
+        return NULL;
     }
 
 
@@ -95,7 +103,7 @@ different POSIX implementations.
         outFile=open(book,O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR);
         if(outFile == -1){
             printf("Error could not open book \n");
-            exit(1);
+            return NULL;
         }
         //THEN COPY ALL OF CHAPTER OVER TO BOOK
        while( (n_char=read(inFile, buffer, 10))!=0)
