@@ -88,7 +88,7 @@ int main (int argc, char *argv [])
         return 1;
     }
 
-    fprintf (stdout, "This is tid 1 from pid %ld\n", (long) getpid ());
+    fprintf (stdout, "The book has been created \n");
 
     return 0;
 }

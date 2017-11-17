@@ -41,6 +41,7 @@ void *threadout (void *args)
     int inFile=0;
     int outFile=0;
     int n_char=0;
+    int isSet=0;
 /*
 This for loop converts a thread id into an integer. It works
 on both Hercules and the Linux machines in CL115. It solves
@@ -69,8 +70,6 @@ different POSIX implementations.
     sprintf(istring, "%d", i+1);
     strcat(chap,istring);
 
-    printf("TEST:: chapter %s \n",chap);
-    
 //OPEN FILE
     inFile = open(chap, O_RDONLY); //open the file to send to server
     if (inFile == -1) {
@@ -85,7 +84,8 @@ different POSIX implementations.
 //PROBLEM SPOT
 //SHOULD THIS BE A CHECK IF CHAPTER ID == SHARED VARIABLE?????
 //Check shared counter is value equals same as chapter number
-    while ((sem_wait (semp) == -1) && (i+1!= counter))
+while(isSet==0){
+    while ((sem_wait (semp) == -1) && (i+1 != counter))
     {
         if(errno != EINTR)
         {
@@ -93,15 +93,14 @@ different POSIX implementations.
             return NULL;
         }
     }
-
+    printf("Thread %d has locked \n", i+1);
 /*
 ****************** Critical Section ****************************
 */
     //ADDED
     
-
+    if(i+1 == counter){
         //Check shared counter is value equals same as chapter number
-    
         //IF TRUE THEN OPEN BOOK
         outFile=open(book,O_WRONLY | O_APPEND | O_CREAT, S_IRUSR | S_IWUSR);
         if(outFile == -1){
@@ -115,13 +114,16 @@ different POSIX implementations.
                 n_char=write(outFile,buffer,n_char);
         }
         //INCREMENT SHARED COUNTER
-        printf("TEST:: made it in if statement:counter %d %d \n",counter, i+1);
+        printf("Chapter  %d added\n", i+1);
         counter++;
    
     
     //END OF ADDED
-    
-    
+        isSet=1;
+    }
+    else{
+        printf("Thread %d has to wait \n", i+1);
+    }
     //OLD Original STUFF
      /*
     while (*c != '\0')
@@ -130,8 +132,7 @@ different POSIX implementations.
         c++;
         nanosleep (&sleeptime, NULL);
     }*/
-    close(inFile);
-    close(outFile);
+    
 
 /*
 ****************** Unlock **************************************
@@ -142,4 +143,7 @@ different POSIX implementations.
     }
 
     return NULL;
+}
+close(inFile);
+    close(outFile);
 }
