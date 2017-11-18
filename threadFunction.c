@@ -85,65 +85,55 @@ different POSIX implementations.
 //SHOULD THIS BE A CHECK IF CHAPTER ID == SHARED VARIABLE?????
 //Check shared counter is value equals same as chapter number
 while(isSet==0){
-    while ((sem_wait (semp) == -1) && (i+1 != counter))
-    {
-        if(errno != EINTR)
+        while ((sem_wait (semp) == -1) && (i+1 != counter))
         {
-            fprintf (stderr, "Thread failed to lock semaphore\n");
-            return NULL;
+            if(errno != EINTR)
+            {
+                fprintf (stderr, "Thread failed to lock semaphore\n");
+                return NULL;
+            }
         }
-    }
-    printf("Thread %d has locked \n", i+1);
-/*
-****************** Critical Section ****************************
-*/
-    //ADDED
-    
-    if(i+1 == counter){
-        //Check shared counter is value equals same as chapter number
-        //IF TRUE THEN OPEN BOOK
-        outFile=open(book,O_WRONLY | O_APPEND | O_CREAT, S_IRUSR | S_IWUSR);
-        if(outFile == -1){
-            printf("Error could not open book \n");
-            return NULL;
-        }
-        //THEN COPY ALL OF CHAPTER OVER TO BOOK
-       while( (n_char=read(inFile, buffer, 10))!=0)
-        {
+        printf("Thread %d has locked \n", i+1);
+    /*
+    ****************** Critical Section ****************************
+    */
+        //ADDED
+        
+        if(i+1 == counter){
+                //Check shared counter is value equals same as chapter number
+                //IF TRUE THEN OPEN BOOK
+            outFile=open(book,O_WRONLY | O_APPEND | O_CREAT, S_IRUSR | S_IWUSR);
+            if(outFile == -1){
+                printf("Error could not open book \n");
+                return NULL;
+            }
+                //THEN COPY ALL OF CHAPTER OVER TO BOOK
+            while( (n_char=read(inFile, buffer, 10))!=0)
+            {
                 //Display the characters read
                 n_char=write(outFile,buffer,n_char);
+            }
+             //INCREMENT SHARED COUNTER
+            printf("Chapter  %d added\n", i+1);
+            counter++;
+        
+            
+            //END OF ADDED
+            isSet=1;
+            close(outFile);
         }
-        //INCREMENT SHARED COUNTER
-        printf("Chapter  %d added\n", i+1);
-        counter++;
-   
-    
-    //END OF ADDED
-        isSet=1;
+        else{
+            printf("Thread %d has to wait \n", i+1);
+        }
+        
+    /*
+    ****************** Unlock **************************************
+    */
+        if (sem_post (semp) == -1)
+        {
+            fprintf (stderr, "Thread failed to unlock semaphore\n");
+        }
     }
-    else{
-        printf("Thread %d has to wait \n", i+1);
-    }
-    //OLD Original STUFF
-     /*
-    while (*c != '\0')
-    {
-        fputc (*c, stderr);
-        c++;
-        nanosleep (&sleeptime, NULL);
-    }*/
-    
-
-/*
-****************** Unlock **************************************
-*/
-    if (sem_post (semp) == -1)
-    {
-        fprintf (stderr, "Thread failed to unlock semaphore\n");
-    }
-
+    close(inFile);
     return NULL;
-}
-close(inFile);
-    close(outFile);
 }
